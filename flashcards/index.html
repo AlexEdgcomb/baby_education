@@ -1,0 +1,62 @@
+<button id='start' onclick='start()'>Start</button>
+<p id='letter'></p>
+
+<style>
+    p {
+        font-family: Arial;
+        font-size: 170px;
+        margin: 0;
+    }
+</style>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
+<script>
+    const allLetters = [ 'r', 's', 'u', 'v', 'z' ];
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = array[i];
+
+            array[i] = array[j];
+            array[j] = temp;
+        }
+
+        return array;
+    }
+
+    function start() {
+        $('#start').hide();
+
+        showAllLetters(shuffle(allLetters).slice()).then(() => {
+            start();
+        });
+    }
+
+    function showAllLetters(letters) {
+        return new Promise(resolve => {
+            if (letters.length) {
+                showLetter(letters.pop()).then(() => showAllLetters(letters).then(resolve));
+            }
+            else {
+                resolve();
+            }
+        });
+    }
+
+    function showLetter(letter) {
+        return new Promise(resolve => {
+            const audio = new Audio(`${letter}.m4a`);
+
+            audio.onended = function() {
+                resolve();
+            };
+
+            audio.play().then(() => $('#letter').text(letter));
+        });
+    }
+</script>
