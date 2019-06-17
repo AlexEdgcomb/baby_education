@@ -1,14 +1,16 @@
 import csv
 
 letter_to_sound = {
+
+    # Continuant letters that are phonetic.
     'A': [ 'AE' ],
-    'E': [ 'EH1' ],
+    'E': [ 'EH' ],
     'F': [ 'F' ],
     'I': [ 'IH' ],
     'L': [ 'L' ],
     'M': [ 'M' ],
     'N': [ 'N' ],
-    'O': [ 'AO', 'AA' ],
+    'O': [ 'AA', 'AH' ], # These sounds are very similar. "on", of"
     'R': [ 'R' ],
     'S': [ 'S' ],
     'U': [ 'AH' ],
@@ -16,7 +18,7 @@ letter_to_sound = {
     'W': [ 'W' ],
     'Z': [ 'Z' ],
 
-    # Non-continuant letters.
+    # Non-continuant letters that are phonetic.
     #'B': [ 'B' ],
     #'D': [ 'D' ],
     #'G': [ 'G' ],
@@ -27,6 +29,7 @@ letter_to_sound = {
     #'T': [ 'T' ],
 }
 
+# Track which words have been found already, so we don't print twice.
 words_found = {}
 
 with open('dataset.csv', encoding = "ISO-8859-1") as in_file:
@@ -35,6 +38,7 @@ with open('dataset.csv', encoding = "ISO-8859-1") as in_file:
         for sounds in csv.reader(in_file):
             word = sounds.pop(0)
 
+            # Some words will have parens when there are multiple pronunciations, like SATIRICAL(1), but we don't care about the parens.
             try:
                 index = word.index('(')
                 word = word[:index]
@@ -56,5 +60,3 @@ with open('dataset.csv', encoding = "ISO-8859-1") as in_file:
                     if word not in words_found:
                         words_found[word] = True
                         writer.writerow([ word, len(word) ])
-
-
