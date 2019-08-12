@@ -72,7 +72,7 @@
                 resolve();
             };
 
-            audio.play().then(() => $('p').text(letter));
+            audio.play().then(() => $('p').text(letter.toUpperCase()));
         });
     }
 </script>
