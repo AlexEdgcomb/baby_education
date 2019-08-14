@@ -63,28 +63,4 @@
             }
         });
     }
-
-    /*
-    function showAllLetters(letters) {
-        return new Promise(resolve => {
-            if (letters.length) {
-                showLetter(letters.pop()).then(() => showAllLetters(letters).then(resolve));
-            }
-            else {
-                resolve();
-            }
-        });
-    }
-
-    function showLetter(letter) {
-        return new Promise(resolve => {
-            const audio = new Audio(`${letter}.m4a`);
-
-            audio.onended = function() {
-                resolve();
-            };
-
-            audio.play().then(() => $('p').text(letter.toUpperCase()));
-        });
-    }*/
 </script>
