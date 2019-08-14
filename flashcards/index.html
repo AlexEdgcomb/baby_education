@@ -1,6 +1,6 @@
 <div>
-    <button id='start' onclick='start()'>Start</button>
-    <p></p>
+    <button onclick='start()'>Start</button>
+    <video></video>
 </div>
 
 <style>
@@ -10,17 +10,14 @@
 
     div {
         align-items: center;
-        background-color: white;
         display: flex;
         height: 100%;
         justify-content: center;
         width: 100%;
     }
 
-    p {
-        font-family: Arial;
-        font-size: 600px;
-        margin: 0;
+    video {
+        width: 100%;
     }
 </style>
 
@@ -30,29 +27,44 @@
   crossorigin="anonymous"></script>
 
 <script>
-    const allLetters = [ 'r', 's', 'u', 'v', 'z' ];
+    const all = [ 'alex_o', 'alex_m', 'alex_n', 'alex_om', 'alex_on', 'alex_non', 'alex_mom' ];
+    const $video = $('video');
 
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            const temp = array[i];
-
-            array[i] = array[j];
-            array[j] = temp;
-        }
-
-        return array;
-    }
+    $video.toggle();
 
     function start() {
-        $('#start').hide();
+        $('button').hide();
+        $video.toggle();
         $('div').get(0).requestFullscreen();
+        playAllLoop();
+    }
 
-        showAllLetters(shuffle(allLetters).slice()).then(() => {
-            start();
+    function playAllLoop() {
+        playOnce(all.slice()).then(() => {
+            playAllLoop();
         });
     }
 
+    function playOnce(all) {
+        return new Promise(resolve => {
+            if (all.length) {
+                const videoName = all.shift();
+                const video = $video.get(0);
+
+                video.onended = () => {
+                    playOnce(all).then(resolve);
+                };
+
+                $video.attr('src', `content/${videoName}.mp4`);
+                video.play();
+            }
+            else {
+                resolve();
+            }
+        });
+    }
+
+    /*
     function showAllLetters(letters) {
         return new Promise(resolve => {
             if (letters.length) {
@@ -74,5 +86,5 @@
 
             audio.play().then(() => $('p').text(letter.toUpperCase()));
         });
-    }
+    }*/
 </script>
