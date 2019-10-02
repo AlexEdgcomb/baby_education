@@ -6,41 +6,44 @@ already_letters = [
     'R',
     'S',
     'U',
+    'L',
 ]
-already_words = [
-    'AM',
-    'AN',
-    'OM',
-    'ON',
-    'US',
-    'MAN',
-    'MOM',
-    'NON',
-    'NUN',
-    'RAM',
-    'RAN',
-    'RON',
-    'RUM',
-    'RUN',
-    'RUS',
-    'SAM',
-    'SUM',
-    'SUN',
-    'RANSOM',
-]
-not_yet_letters = [
+letters = [
+    'A',
+    'B',
+    'C',
+    'D',
     'E',
     'F',
+    'G',
+    'H',
     'I',
+    'J',
+    'K',
     'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
     'V',
     'W',
+    'X',
+    'Y',
     'Z',
 ]
-not_yet_words = [
+words = [
     'AL',
+    'AM',
+    'AN',
     'IF',
     'IN',
+    'ON',
+    'US',
     'ALF',
     'ELF',
     'ELM',
@@ -50,11 +53,24 @@ not_yet_words = [
     'FUN',
     'LIN',
     'LIZ',
+    'MAN',
     'MEN',
+    'MOM',
+    'NON',
+    'NUN',
+    'RAM',
+    'RAN',
     'REV',
     'RIM',
+    'RON',
+    'RUM',
+    'RUN',
+    'RUS',
     'SAL',
+    'SAM',
     'SIN',
+    'SUM',
+    'SUN',
     'VAL',
     'VAN',
     'WIN',
@@ -77,24 +93,25 @@ not_yet_words = [
     'ELVIS',
     'FRANZ',
     'LEMON',
-    'LENON',
     'MELON',
     'SELFS',
     'VENOM',
     'ELISON',
     'NELSON',
+    'RANSOM',
     'SINFUL',
     'WILSON',
     'SOLOMON',
     'FLIMFLAM',
 ]
 
-highest = 0
+not_yet_letters = [ letter for letter in letters if letter not in already_letters ]
+not_yet_words = [ word for word in words if any([ letter for letter in not_yet_letters if letter in word ]) ]
+
 for new_letter in not_yet_letters:
     maybe_letters = already_letters.copy() + [ new_letter ]
 
     maybe_words = [ word for word in not_yet_words if all([ letter in maybe_letters for letter in word ]) ]
     count = len(maybe_words)
-    if count > highest:
+    if count > 0:
         print('%s had %d matches: %s' % (new_letter, count, ', '.join(maybe_words)))
-        highest = count
