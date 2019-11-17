@@ -1,0 +1,33 @@
+Counting
+* Record 1, 2, 3, 4, 5, 6, 7, 8, 9 nicely. Add recordings to website
+* Put website on UCR webspace
+* Add more things [1]
+* Add more shapes [2]
+
+Websites
+* Make deploy script to UCR webspace (or S3?)
+
+next_letter_chooser
+* Remove non-good words. Ex: Names, old spellings (ex: fantastik), and atypical words
+
+
+
+
+[1] things:
+colored dots: red, green, blue
+bears
+lemons
+etc
+
+
+[2] Shapes:
+thing
+thing thing
+thing thing thing
+thing thing
+thing
+repeat
+
+thing thing thing thing thing repeat
+      thing thing thing
+            thing

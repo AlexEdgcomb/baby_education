@@ -1,0 +1,125 @@
+<div id='options-container'>
+    <h1>Count to: <h1>
+    <button>2</button>
+    <button>3</button>
+</div>
+
+<div id='counting-container' style='display: none;'>
+    <div id='item-container'></div>
+    <div id='number'></div>
+    <audio></audio>
+</div>
+
+<style>
+    button {
+        font-size: 100px;
+        margin: 25px;
+    }
+
+    #options-container {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .red-dot {
+        background-color: red;
+        border-radius: 100px;
+        height: 100px;
+        margin-bottom: 30px;
+        width: 100px;
+    }
+
+    #counting-container {
+        background-color: white;
+        justify-content: center;
+    }
+
+    #item-container {
+        align-items: center;
+    }
+
+    #item-container:first-child {
+        margin-top: 50px;
+    }
+
+    #item-container, #counting-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+    }
+
+    #number {
+        font-size: 200px;
+        text-align: center;
+    }
+</style>
+
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
+<script>
+    function startCounting(maxNumber) {
+        $('#options-container').hide();
+        $('#counting-container').show().get(0).requestFullscreen();
+
+        const $container = $('#item-container');
+        const $audio = $('audio');
+        const audio = $audio.get(0);
+
+        audio.onended = () => {
+            nextCount();
+        };
+
+        let count = 0;
+        function increment() {
+            count++;
+
+            const $new = $('<div>');
+
+            $new.addClass('red-dot');
+            $container.append($new);
+        }
+
+        function decrement() {
+            count--;
+            $container.children().last().remove();
+        }
+
+        let isCountingUp = true;
+        function nextCount() {
+            setTimeout(() => {
+                const canCountUpMore = count < maxNumber;
+                const canCountDownMore = count > 1;
+
+                isCountingUp = isCountingUp ? canCountUpMore : !canCountDownMore;
+
+                if (isCountingUp) {
+                    increment();
+                }
+                else {
+                    decrement();
+                }
+
+                $('#number').text(count);
+                $audio.attr('src', `content/${count}.m4a`);
+                audio.play();
+            }, 1000);
+        }
+
+        nextCount();
+    }
+
+    $(document).ready(() => {
+        $('button').click((event) => {
+            const maxNumber = parseInt($(event.target).text(), 10);
+
+            startCounting(maxNumber);
+        });
+    })
+</script>

@@ -19,14 +19,14 @@ letter_to_sound = {
     'Z': [ 'Z' ],
 
     # Non-continuant letters that are phonetic.
-    #'B': [ 'B' ],
-    #'D': [ 'D' ],
-    #'G': [ 'G' ],
-    #'H': [ 'HH' ],
-    #'J': [ 'JH' ],
-    #'K': [ 'K' ],
-    #'P': [ 'P' ],
-    #'T': [ 'T' ],
+    'B': [ 'B' ],
+    'D': [ 'D' ],
+    'G': [ 'G' ],
+    'H': [ 'HH' ],
+    'J': [ 'JH' ],
+    'K': [ 'K' ],
+    'P': [ 'P' ],
+    'T': [ 'T' ],
 }
 
 # Track which words have been found already, so we don't print twice.

@@ -1,15 +1,31 @@
 from random import shuffle
-from math import inf
+from math import inf, factorial
+from progress.bar import Bar
 
-def two_card_difference(card1, card2):
-    differences = set()
-    for index, character1 in enumerate(card1):
-        character2 = card2[index]
-        if character1 != character2:
-            differences.add(character1 + character2)
-    return len(differences)
+def edit_distance_runner(str1, str2, m, n):
+    if m==0:
+        return n
+    if n==0:
+        return m
+    if str1[m-1]==str2[n-1]:
+        return edit_distance_runner(str1, str2, m - 1, n - 1)
+    return 1 + min(
+        edit_distance_runner(str1, str2, m, n - 1),
+        edit_distance_runner(str1, str2, m - 1, n),
+        edit_distance_runner(str1, str2, m - 1, n - 1)
+    )
+
+edit_distance_cache = {}
+def edit_distance(str1, str2):
+    ordered = sorted([ str1, str2 ])
+    key = ''.join(ordered)
+    if key not in edit_distance_cache:
+        edit_distance_cache[key] = edit_distance_runner(str1, str2, len(str1), len(str2))
+    return edit_distance_cache[key]
 
 def find_least_changes(unused, deck=[], deck_cost=0, least_changes=inf, good_enough=None):
+    global bar
+
     if good_enough is None:
         good_enough = len(unused) - 1
 
@@ -19,7 +35,7 @@ def find_least_changes(unused, deck=[], deck_cost=0, least_changes=inf, good_eno
         for card in unused:
             tmp_deck_cost = deck_cost
             if len(deck):
-                tmp_deck_cost += two_card_difference(deck[-1], card)
+                tmp_deck_cost += edit_distance(deck[-1], card)
 
             if tmp_deck_cost <= least_changes:
                 deck.append(card)
@@ -29,12 +45,28 @@ def find_least_changes(unused, deck=[], deck_cost=0, least_changes=inf, good_eno
                 del deck[-1] # remove last one
 
                 if found_good_enough:
+
+                    # Account for all the skipped sub-trees.
+                    indexOfCard = unused.index(card)
+                    numCardsSkipped = len(unused) - indexOfCard - 1
+                    amountSkipped = numCardsSkipped * factorial(len(unused) - 1)
+                    bar.next(amountSkipped)
+
                     return (least_changes, found_good_enough)
-    elif deck_cost < least_changes:
-        least_changes = deck_cost
-        print('%d: %s' % (least_changes, deck))
-        if least_changes <= good_enough:
-            found_good_enough = True
+            else:
+
+                # Account for skipped sub-tree.
+                amountSkipped = factorial(len(unused) - 1)
+                bar.next(amountSkipped)
+    else:
+        bar.next()
+        if deck_cost < least_changes:
+            least_changes = deck_cost
+            print()
+            print('%d: %s' % (least_changes, deck))
+            if least_changes <= good_enough:
+                found_good_enough = True
+
     return (least_changes, found_good_enough)
 
 most_changes = 0
@@ -51,7 +83,7 @@ def find_most_changes(unused, deck=[], deck_max_cost=inf, max_pair_cost=inf):
         for card in unused:
             tmp_deck_max_cost = deck_max_cost
             if len(deck):
-                tmp_deck_max_cost -= (max_pair_cost - two_card_difference(deck[-1], card))
+                tmp_deck_max_cost -= (max_pair_cost - edit_distance(deck[-1], card))
 
             if tmp_deck_max_cost >= most_changes:
                 deck.append(card)
@@ -63,10 +95,11 @@ def find_most_changes(unused, deck=[], deck_max_cost=inf, max_pair_cost=inf):
         most_changes = deck_max_cost
         print('%d: %s' % (deck_max_cost, deck))
 
-cards = [ 'MOM', 'NON', 'NUN', 'SUN', 'RUN', 'RUS', 'RON', 'RAN', 'MAN', 'RAM', 'RUM', 'SUM', 'SAM', 'SAL' ]
+cards = [ 'BULB', 'SUB', 'NUN', 'BUN', 'BUS', 'ALBUM', 'ELM', 'RAM', 'MOM', 'MAN', 'FAN', 'FLAN', 'MELON', 'LEMON' ]
 
-print('Finding least changes (%d min)' % (len(cards) - 1))
+bar = Bar('Finding least changes (%d min)' % (len(cards) - 1), max=factorial(len(cards)))
 find_least_changes(cards, good_enough=len(cards))
+bar.finish()
 print()
 print('-----------------')
 print()
