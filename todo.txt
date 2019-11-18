@@ -10,6 +10,15 @@ Websites
 next_letter_chooser
 * Remove non-good words. Ex: Names, old spellings (ex: fantastik), and atypical words
 
+1. Find more links, like:
+https://www.youtube.com/watch?v=vtiJXg--D6M
+https://www.youtube.com/watch?v=dQXyFmgar5Q
+2. Make webpage of such links with labels. Ex:
+Little Critter by Mercer Mayer:
+<a href="https://www.youtube.com/embed/vtiJXg--D6M?autoplay=1&rel=0&modestbranding=1&controls=0">I Just Forgot</a>
+
+* Record ancestor doing multiple flashcards in 1 take
+
 
 
 
