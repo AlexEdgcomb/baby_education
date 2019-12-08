@@ -1,9 +1,11 @@
-import string
+from string import ascii_uppercase
+
 already_letters = [
     'A',
     'B',
     'E',
     'F',
+    'I',
     'L',
     'M',
     'N',
@@ -12,7 +14,7 @@ already_letters = [
     'S',
     'U',
 ]
-letters = string.ascii_uppercase
+letters = ascii_uppercase
 words = [
     'AB',
     'AD',
@@ -3494,7 +3496,7 @@ print('---------------------------------------')
 print()
 
 for new_letter in not_yet_letters:
-    maybe_letters = already_letters.copy() + [ new_letter ]
+    maybe_letters = already_letters + [ new_letter ]
 
     maybe_words = [ word for word in not_yet_words if all([ letter in maybe_letters for letter in word ]) ]
     count = len(maybe_words)

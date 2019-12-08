@@ -95,7 +95,7 @@ def find_most_changes(unused, deck=[], deck_max_cost=inf, max_pair_cost=inf):
         most_changes = deck_max_cost
         print('%d: %s' % (deck_max_cost, deck))
 
-cards = [ 'BULB', 'SUB', 'NUN', 'BUN', 'BUS', 'ALBUM', 'ELM', 'RAM', 'MOM', 'MAN', 'FAN', 'FLAN', 'MELON', 'LEMON' ]
+cards = [ 'ROD', 'RAM', 'MOM', 'ELM', 'ALBUM', 'BULB', 'SUB', 'NUN', 'BUN', 'BUS', 'BIN', 'BIB', 'BED', 'SLED', 'LID', 'LAD', 'DAD', 'MAN', 'FAN', 'FLAN' ]
 
 bar = Bar('Finding least changes (%d min)' % (len(cards) - 1), max=factorial(len(cards)))
 find_least_changes(cards, good_enough=len(cards))
