@@ -10,7 +10,7 @@ letter_to_sound = {
     'L': [ 'L' ],
     'M': [ 'M' ],
     'N': [ 'N' ],
-    'O': [ 'AA', 'AH' ], # These sounds are very similar. "on", of"
+    'O': [ 'AA', 'AH' ], # These sounds are very similar. "on", "of"
     'R': [ 'R' ],
     'S': [ 'S' ],
     'U': [ 'AH' ],

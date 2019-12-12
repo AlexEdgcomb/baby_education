@@ -3,6 +3,7 @@ from string import ascii_uppercase
 already_letters = [
     'A',
     'B',
+    'D',
     'E',
     'F',
     'I',
