@@ -1,7 +1,7 @@
 from math import inf
 from progress.bar import Bar
 
-cards = [ 'MAN', 'BUS', 'DAD', 'BULB', 'BUN', 'MOM', 'BAT', 'SAD', 'MAD', 'SLED', 'SUB', 'BED', 'MAT', 'LAD', 'ROD', 'RAM', 'FLAN', 'ELM', 'LID', 'ALBUM', 'NUN', 'BIN', 'FAN', 'BIB' ]
+cards = [ 'ROD', 'RAM', 'MOM', 'ELM', 'ALBUM', 'BULB', 'SUB', 'NUN', 'BUN', 'BUS', 'BIN', 'BIB', 'BED', 'SLED', 'LID', 'LAD', 'DAD', 'SAD', 'MAD', 'MAT', 'BAT', 'MAN', 'FAN', 'FLAN' ]
 
 def edit_distance_runner(str1, str2, m, n):
     if m==0:
@@ -83,9 +83,12 @@ class Combo:
 
         return True
 
-    def can_connect(self, new_combo):
+    def can_connect_combo_to_right(self, new_combo):
         # Last of self's pairs must match first of new_combo's pairs.
         return (not bool(self.pairs)) or (self.pairs[-1].second == new_combo.pairs[0].first)
+
+    def can_connect_combo_to_left(self, new_combo):
+        return new_combo.can_connect_combo_to_right(self)
 
     def can_use_combo(self, new_combo):
 
@@ -140,15 +143,15 @@ combos.sort()
 
 def find_best_deck(unused, curr, lowest_cost_deck=inf, first_call=True):
 
+    usable_combos = [ combo for combo in unused if curr.can_use_combo(combo) ]
+    connectable_combos = [ combo for combo in usable_combos if curr.can_connect_combo_to_right(combo) ]
+
     # Check if no way to beat best given unused and curr.
-    lowest_cost_unused = unused[0].avg_cost() if unused else 0
+    lowest_cost_unused = usable_combos[0].avg_cost() if usable_combos else inf
     num_cards_remaining = len(cards) - len(curr.pairs)
     lowest_cost_for_deck = lowest_cost_unused * num_cards_remaining
     if (curr.cost + lowest_cost_for_deck) > lowest_cost_deck:
         return lowest_cost_deck
-
-    usable_combos = [ combo for combo in unused if curr.can_use_combo(combo) ]
-    connectable_combos = [ combo for combo in usable_combos if curr.can_connect(combo) ]
 
     # Start progress tracker.
     if first_call:
