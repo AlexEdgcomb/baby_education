@@ -1,7 +1,8 @@
 from math import inf
 from progress.bar import Bar
 
-cards = [ 'ROD', 'RAM', 'MOM', 'ELM', 'ALBUM', 'BULB', 'SUB', 'NUN', 'BUN', 'BUS', 'BIN', 'BIB', 'BED', 'SLED', 'LID', 'LAD', 'DAD', 'SAD', 'MAD', 'MAT', 'BAT', 'MAN', 'FAN', 'FLAN' ]
+cards = [ 'NUN', 'BUN', 'BUS', 'BULB', 'SUB', 'BIB', 'BIN', 'BED', 'ROD', 'RAM', 'MOM', 'ELM', 'ALBUM', 'SLED', 'LID', 'LAD', 'DAD', 'SAD', 'MAD', 'MAT', 'BAT', 'MAN', 'FAN', 'FLAN' ]
+size_of_deck = len(cards)
 
 def edit_distance_runner(str1, str2, m, n):
     if m==0:
@@ -60,37 +61,19 @@ class Combo:
         self.cost += pair.cost
         self.cards.update([ pair.first, pair.second ])
 
-    def add_combo(self, combo):
+    def add_combo_to_right(self, combo):
         for pair in combo.pairs:
             self.add_pair(pair)
 
-    def can_end_with_pair(self, new_pair):
-
-        # The new pair cannot end share any cards with the existing pairs.
-        for pair in self.pairs[:-1]:
-            if set([ pair.first, pair.second ]) & set([ new_pair.first, new_pair.second ]):
-                return False
-
-        if self.pairs:
-
-            # The last pair's second card must match the new pair's first card.
-            if self.pairs[-1].second != new_pair.first:
-                return False
-
-            # The last pair's first card cannot be the same as the new pair's second card.
-            if self.pairs[-1].first == new_pair.second:
-                return False
-
-        return True
-
     def can_connect_combo_to_right(self, new_combo):
-        # Last of self's pairs must match first of new_combo's pairs.
-        return (not bool(self.pairs)) or (self.pairs[-1].second == new_combo.pairs[0].first)
 
-    def can_connect_combo_to_left(self, new_combo):
-        return new_combo.can_connect_combo_to_right(self)
+        # Last of self's pairs must match first of new_combo's pairs.
+        return (not bool(self.pairs)) or (not bool(new_combo.pairs)) or (self.pairs[-1].second == new_combo.pairs[0].first)
 
     def can_use_combo(self, new_combo):
+        return self.can_use_combo_to_right(new_combo) or new_combo.can_use_combo_to_right(self)
+
+    def can_use_combo_to_right(self, new_combo):
 
         # Cards from self's first to second-to-last card aren't in any of new_combo.
         if self.pairs:
@@ -100,10 +83,11 @@ class Combo:
                 return False
 
         # Cards from new_combo's second to last card aren't in any of self.
-        all_but_first_new_combo = new_combo.cards.copy()
-        all_but_first_new_combo.remove(new_combo.pairs[0].first)
-        if all_but_first_new_combo & self.cards:
-            return False
+        if new_combo.pairs:
+            all_but_first_new_combo = new_combo.cards.copy()
+            all_but_first_new_combo.remove(new_combo.pairs[0].first)
+            if all_but_first_new_combo & self.cards:
+                return False
 
         return True
 
@@ -124,14 +108,18 @@ class Combo:
         else:
             return self.avg_cost() < other.avg_cost()
 
+    def __eq__(self, other):
+        return (self.cards == other.cards) and (self.pairs[0].first == other.pairs[0].first) and (self.pairs[-1].second == other.pairs[-1].second)
+
 
 def make_all_combos(combos, remaining_pairs, curr):
-    remaining_pairs = [ pair for pair in remaining_pairs if curr.can_end_with_pair(pair) ]
-    for pair in remaining_pairs:
+    usable_pairs = [ pair for pair in remaining_pairs if curr.can_use_combo_to_right(Combo(pair)) ]
+    connectable_pairs = [ pair for pair in usable_pairs if curr.can_connect_combo_to_right(Combo(pair)) ]
+    for pair in connectable_pairs:
         tmp_curr = Combo(curr)
         tmp_curr.add_pair(pair)
         combos.append(tmp_curr)
-        make_all_combos(combos, remaining_pairs, tmp_curr)
+        make_all_combos(combos, usable_pairs, tmp_curr)
 
 # Make all combos of cost 1s. Include each cost 2+ pair as a combo. Don't make combos of cost 2+ since we won't use those.
 max_cost = max([ pair.cost for pair in pairs ])
@@ -141,33 +129,63 @@ lowest_cost_pairs = [ pair for pair in pairs if pair.cost == 1 ]
 make_all_combos(combos, lowest_cost_pairs, Combo())
 combos.sort()
 
+# Keep combos that have a unique set of cards AND unique first and last cards.
+unique_combos = []
+for combo in combos:
+    if combo not in unique_combos:
+        unique_combos.append(combo)
+
 def find_best_deck(unused, curr, lowest_cost_deck=inf, first_call=True):
 
+    # Keep only usable combos.
     usable_combos = [ combo for combo in unused if curr.can_use_combo(combo) ]
-    connectable_combos = [ combo for combo in usable_combos if curr.can_connect_combo_to_right(combo) ]
 
-    # Check if no way to beat best given unused and curr.
+    # Check if no way to beat best given usable_combos and curr.
     lowest_cost_unused = usable_combos[0].avg_cost() if usable_combos else inf
-    num_cards_remaining = len(cards) - len(curr.pairs)
+    num_cards_remaining = size_of_deck - len(curr.pairs)
     lowest_cost_for_deck = lowest_cost_unused * num_cards_remaining
     if (curr.cost + lowest_cost_for_deck) > lowest_cost_deck:
         return lowest_cost_deck
 
+    # Check if no way to fill deck given usable_combos and curr.
+    deck = curr.cards.copy()
+    for combo in usable_combos:
+        deck.update(combo.cards)
+    if len(deck) < size_of_deck:
+        return lowest_cost_deck
+
+    usable_combos_to_right = [ combo for combo in usable_combos if curr.can_use_combo_to_right(combo) ]
+    usable_combos_to_left = [ combo for combo in usable_combos if combo.can_use_combo_to_right(curr) ]
+    connectable_combos_to_right = [ combo for combo in usable_combos_to_right if curr.can_connect_combo_to_right(combo) ]
+    connectable_combos_to_left = [ combo for combo in usable_combos_to_left if combo.can_connect_combo_to_right(curr) ]
+
     # Start progress tracker.
     if first_call:
-        bar = Bar('Finding lowest cost', max=len(usable_combos))
+        bar = Bar('Finding lowest cost', max=len(connectable_combos_to_right) + len(connectable_combos_to_left))
 
-    if connectable_combos:
-        for combo in connectable_combos:
+    if connectable_combos_to_left:
+        for combo in connectable_combos_to_left:
+
+            # Update progress tracker.
+            if first_call:
+                bar.next()
+
+            tmp_combo = Combo(combo)
+            tmp_combo.add_combo_to_right(curr)
+            lowest_cost_deck = find_best_deck(usable_combos_to_left, tmp_combo, lowest_cost_deck, False)
+
+    elif connectable_combos_to_right:
+        for combo in connectable_combos_to_right:
 
             # Update progress tracker.
             if first_call:
                 bar.next()
 
             tmp_curr = Combo(curr)
-            tmp_curr.add_combo(combo)
-            lowest_cost_deck = find_best_deck(usable_combos, tmp_curr, lowest_cost_deck, False)
-    elif curr.cost < lowest_cost_deck:
+            tmp_curr.add_combo_to_right(combo)
+            lowest_cost_deck = find_best_deck(usable_combos_to_right, tmp_curr, lowest_cost_deck, False)
+
+    elif not usable_combos_to_right and (curr.cost < lowest_cost_deck):
         lowest_cost_deck = curr.cost
         print()
         print(curr)
@@ -178,5 +196,5 @@ def find_best_deck(unused, curr, lowest_cost_deck=inf, first_call=True):
 
     return lowest_cost_deck
 
-find_best_deck(combos, Combo())
+find_best_deck(unique_combos, Combo())
 print()
