@@ -13,6 +13,7 @@ already_letters = [
     'O',
     'R',
     'S',
+    'T',
     'U',
 ]
 letters = ascii_uppercase
