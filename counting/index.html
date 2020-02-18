@@ -5,7 +5,23 @@
 </div>
 
 <div id='counting-container' style='display: none;'>
-    <div id='item-container'></div>
+    <div id='item-container'>
+        <div class='row'>
+            <div class='item'></div>
+            <div class='item'></div>
+            <div class='item'></div>
+        </div>
+        <div class='row'>
+            <div class='item'></div>
+            <div class='item'></div>
+            <div class='item'></div>
+        </div>
+        <div class='row'>
+            <div class='item'></div>
+            <div class='item'></div>
+            <div class='item'></div>
+        </div>
+    </div>
     <div id='number'></div>
     <audio></audio>
 </div>
@@ -27,8 +43,10 @@
     .red-dot {
         background-color: red;
         border-radius: 100px;
+    }
+    
+    .item {
         height: 100px;
-        margin-bottom: 30px;
         width: 100px;
     }
 
@@ -38,11 +56,15 @@
     }
 
     #item-container {
-        align-items: center;
+        justify-content: space-around;
+        height: 100%;
+        width: 100%;
     }
 
-    #item-container:first-child {
-        margin-top: 50px;
+    .row {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
     }
 
     #item-container, #counting-container {
@@ -64,11 +86,21 @@
   crossorigin="anonymous"></script>
 
 <script>
+    function pickFromArray(arr, exclusion_arr) {
+        let item;
+
+        do {
+            item = arr[Math.floor(Math.random() * arr.length)];
+        } while (exclusion_arr.includes(item));
+
+        return item;
+    }
+
     function startCounting(maxNumber) {
         $('#options-container').hide();
         $('#counting-container').show().get(0).requestFullscreen();
 
-        const $container = $('#item-container');
+        const $items = $('.item');
         const $audio = $('audio');
         const audio = $audio.get(0);
 
@@ -76,38 +108,30 @@
             nextCount();
         };
 
-        let count = 0;
+        const possibleItems = (new Array($items.length)).fill(0).map((v, i) => i);
+        const shownItems = [];
         function increment() {
-            count++;
+            const next = pickFromArray(possibleItems, shownItems);
 
-            const $new = $('<div>');
-
-            $new.addClass('red-dot');
-            $container.append($new);
+            $items.eq(next).addClass('red-dot');
+            shownItems.push(next);
         }
 
         function decrement() {
-            count--;
-            $container.children().last().remove();
+            $items.eq(shownItems.pop()).removeClass('red-dot');
         }
 
         let isCountingUp = true;
         function nextCount() {
             setTimeout(() => {
-                const canCountUpMore = count < maxNumber;
-                const canCountDownMore = count > 1;
+                const canCountUpMore = shownItems.length < maxNumber;
+                const canCountDownMore = shownItems.length > 1;
 
                 isCountingUp = isCountingUp ? canCountUpMore : !canCountDownMore;
+                isCountingUp ? increment() : decrement();
 
-                if (isCountingUp) {
-                    increment();
-                }
-                else {
-                    decrement();
-                }
-
-                $('#number').text(count);
-                $audio.attr('src', `content/${count}.m4a`);
+                $('#number').text(shownItems.length);
+                $audio.attr('src', `content/${shownItems.length}.m4a`);
                 audio.play();
             }, 1000);
         }
