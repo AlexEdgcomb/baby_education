@@ -122,7 +122,6 @@ def make_all_combos(combos, remaining_pairs, curr):
         make_all_combos(combos, usable_pairs, tmp_curr)
 
 # Make all combos of cost 1s. Include each cost 2+ pair as a combo. Don't make combos of cost 2+ since we won't use those.
-max_cost = max([ pair.cost for pair in pairs ])
 not_lowest_cost_pairs = [ pair for pair in pairs if pair.cost > 1 ]
 combos = [ Combo(pair) for pair in not_lowest_cost_pairs ]
 lowest_cost_pairs = [ pair for pair in pairs if pair.cost == 1 ]
