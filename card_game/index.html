@@ -22,6 +22,11 @@
     margin: 50px;
 }
 
+.selected {
+    border: 15px solid black;
+    color: black;
+}
+
 .text {
     font-size: 100px;
 }
@@ -31,8 +36,9 @@
 <div id="content-container">
     <button id="start" onclick="start()">Start</button>
     <div id="cards-container">
+        <button class="card" onclick="selected(0);"><span class="text"></span></button>
         <button class="card" onclick="selected(1);"><span class="text"></span></button>
-        <button class="card" onclick="selected(2);"><span class="text"></span></button>
+        <audio id="audio"></audio>
     </div>
     <div id="reward-container">
         <div id="reward"></div>
@@ -45,6 +51,8 @@ const $cardsContainer = $('#cards-container');
 const $cards = $('.card');
 const $start = $('#start');
 const $rewardContainer = $('#reward-container');
+const $audio = $('#audio');
+const audio = $audio.get(0);
 
 $start.hide();
 $cardsContainer.hide();
@@ -61,7 +69,7 @@ function onYouTubeIframeAPIReady() {
             modestbranding: 1,
             rel: 0,
         },
-        videoId: 'r-EPjrfoYxk',
+        videoId: 'isidNk0Ppkw',
         width: window.screen.width,
     });
 }
@@ -74,30 +82,94 @@ function start() {
 }
 
 // Generate cards and prompt.
+let question = [
+    {
+        text: 'MOM',
+        correct: true,
+        prompt: 'select_mom',
+        explanation: 'you_selected_mom',
+    },
+    {
+        text: 'DAD',
+        correct: false,
+        prompt: 'select_dad',
+        explanation: 'you_selected_dad',
+    },
+];
 function giveCards() {
     $cardsContainer.show();
     $rewardContainer.hide();
+    $cards.prop('disabled', false).removeClass('selected');
 
     // TODO: Pick images from slide deck.
-    // TODO: Randomize content shown.
-    $cards.eq(0).find('span').text('MOM');
-    $cards.eq(1).find('span').text('DAD');
-    // TODO: Say which content to pick. Ex: Select mom.
+
+    // Randomize content shown.
+    shuffle(question);
+
+    const correctIndex = Math.floor(Math.random() * 2);
+
+    question.forEach(item => {
+        item.correct = false
+    });
+    question[correctIndex].correct = true;
+
+    // Show cards and give prompt.
+    $cards.eq(0).find('span').text(question[0].text);
+    $cards.eq(1).find('span').text(question[1].text);
+    $audio.attr('src', `content/${question[correctIndex].prompt}.m4a`);
+    audio.play();
 }
 
 // Handle card selection.
-function selected(card) {
-    if (card === 1) {
+function selected(cardIndex) {
+    $cards.prop('disabled', true);
+    $cards.eq(cardIndex).addClass('selected');
+
+    if (question[cardIndex].correct) {
         $cardsContainer.hide();
         $rewardContainer.show();
         player.playVideo();
-        setTimeout(function() {
+        setTimeout(() => {
             player.pauseVideo();
             giveCards();
         }, 10000);
     }
     else {
-        // TODO: Give explanation. Ex: That's not mom.
+        const wrongOne = question.find(item => !item.correct);
+
+        $audio.attr('src', `content/${wrongOne.explanation}.m4a`);
+        audio.play();
+
+        const promise = new Promise(resolve => {
+            audioResolve = resolve;
+        });
+        promise.then(giveCards);
     }
+}
+
+let audioResolve = null;
+audio.onended = () => {
+    audioResolve && audioResolve();
+};
+
+function shuffle(array) {
+    let currentIndex = array.length;
+    let temporaryValue;
+    let randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
 }
 </script>
