@@ -78,47 +78,92 @@ function onYouTubeIframeAPIReady() {
 // Start button clicked.
 function start() {
     $start.hide();
+
+    // Randomize deck.
+    shuffle(deck);
+
     $('#content-container').get(0).requestFullscreen();
     giveCards();
 }
 
 // Generate cards and prompt.
-let question = [
+const deck = [
     {
         src: 'mom.png',
-        correct: true,
         prompt: 'select_mom',
         explanation: 'you_selected_mom',
     },
     {
         src: 'dad.jpg',
-        correct: false,
         prompt: 'select_dad',
         explanation: 'you_selected_dad',
     },
+    {
+        src: 'bus.png',
+        prompt: 'select_bus',
+        explanation: 'you_selected_bus',
+    },
+    {
+        src: 'ram.png',
+        prompt: 'select_ram',
+        explanation: 'you_selected_ram',
+    },
+    {
+        src: 'fan.png',
+        prompt: 'select_fan',
+        explanation: 'you_selected_fan',
+    },
+    {
+        src: 'sub.png',
+        prompt: 'select_sub',
+        explanation: 'you_selected_sub',
+    },
+    {
+        src: 'bulb.png',
+        prompt: 'select_bulb',
+        explanation: 'you_selected_bulb',
+    },
+    {
+        src: 'nun.png',
+        prompt: 'select_nun',
+        explanation: 'you_selected_nun',
+    },
 ];
+let question = null;
+let previousCorrect = true;
 function giveCards() {
     $cardsContainer.show();
     $rewardContainer.hide();
     $cards.prop('disabled', false).removeClass('selected');
 
-    // TODO: Pick images from slide deck.
+    // Pick question from slide deck.
+    if (previousCorrect) {
+        question = deck.splice(0, 2);
+        deck.push(...question);
+        question.forEach(item => {
+            item.correct = false
+        });
 
-    // Randomize content shown.
-    shuffle(question);
+        const correctIndex = Math.floor(Math.random() * 2);
+        question[correctIndex].correct = true;
+    }
+    else {
+        // If wrong, give previously expected card + new incorrect card.
+        question = question.filter(({ correct }) => correct);
 
-    const correctIndex = Math.floor(Math.random() * 2);
+        const next = deck.shift();
 
-    question.forEach(item => {
-        item.correct = false
-    });
-    question[correctIndex].correct = true;
+        next.correct = false;
+        deck.push(next);
+        question.push(next);
+        shuffle(question);
+    }
 
     // Show cards and give prompt.
     question.forEach(({ src }, index) => {
         $cards.eq(index).find('img').attr('src', `content/${src}`);
     });
-    $audio.attr('src', `content/${question[correctIndex].prompt}.m4a`);
+    $audio.attr('src', `content/${question.find(({ correct }) => correct).prompt}.m4a`);
     audio.play();
 }
 
@@ -127,7 +172,9 @@ function selected(cardIndex) {
     $cards.prop('disabled', true);
     $cards.eq(cardIndex).addClass('selected');
 
-    if (question[cardIndex].correct) {
+    previousCorrect = question[cardIndex].correct;
+
+    if (previousCorrect) {
         $cardsContainer.hide();
         $rewardContainer.show();
         player.playVideo();
@@ -137,9 +184,9 @@ function selected(cardIndex) {
         }, 10000);
     }
     else {
-        const wrongOne = question.find(item => !item.correct);
+        const { explanation } = question.find(({ correct }) => !correct);
 
-        $audio.attr('src', `content/${wrongOne.explanation}.m4a`);
+        $audio.attr('src', `content/${explanation}.m4a`);
         audio.play();
 
         new Promise(resolve => audioResolve = resolve).then(() => setTimeout(giveCards, 2000));
