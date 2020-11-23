@@ -172,6 +172,7 @@ function selected(cardIndex) {
     if (previousCorrect) {
         $cardsContainer.hide();
         $rewardContainer.show();
+        player.setVolume(25);
         player.playVideo();
         setTimeout(() => {
             player.pauseVideo();
