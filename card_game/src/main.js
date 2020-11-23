@@ -14,7 +14,7 @@ $rewardContainer.hide();
 
 // Load stats.
 function loadStats() {
-    const defaultResult = { truePositive: 0, falsePositive: 0, trueNegative: 0, falseNegative: 0 };
+    const defaultResult = { tp: 0, fp: 0, tn: 0, fn: 0 };
     const results = JSON.parse(localStorage.getItem('results'));
     let tableHTML = '';
 
@@ -26,12 +26,12 @@ function loadStats() {
             const wrongResult = accumulator[wrongWord] ?? { ...defaultResult };
 
             if (correct) {
-                correctResult.truePositive++;
-                wrongResult.trueNegative++;
+                correctResult.tp++;
+                wrongResult.tn++;
             }
             else {
-                correctResult.falseNegative++;
-                wrongResult.falsePositive++;
+                correctResult.fn++;
+                wrongResult.fp++;
             }
 
             accumulator[correctWord] = correctResult;
@@ -45,19 +45,21 @@ function loadStats() {
 
         tableHTML = `<tr>
     <th>Card</th>
+    <th>% correct</th>
     <th>True positive</th>
     <th>False positive</th>
     <th>True negative</th>
     <th>False negative</th>
 </tr>`;
 
-        for (const [word, { truePositive, falsePositive, trueNegative, falseNegative }] of Object.entries(matrix)) {
+        for (const [word, { tp, fp, tn, fn }] of Object.entries(matrix)) {
             tableHTML += `<tr>
     <td>${word}</td>
-    <td>${truePositive}</td>
-    <td>${falsePositive}</td>
-    <td>${trueNegative}</td>
-    <td>${falseNegative}</td>
+    <td>${100 * (tp + tn) / (tp + fp + tn + fn)}%</td>
+    <td>${tp}</td>
+    <td>${fp}</td>
+    <td>${tn}</td>
+    <td>${fn}</td>
 </tr>`;
         }
     }
