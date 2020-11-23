@@ -40,7 +40,7 @@ function loadStats() {
             return accumulator;
         }, {});
         const stats = Object.entries(matrix).map(([word, { tp, fp, tn, fn }]) => ({
-            word, tp, fp, tn, fn, perc: 100 * (tp + tn) / (tp + fp + tn + fn),
+            word, tp, fp, tn, fn, perc: Math.round(100 * (tp + tn) / (tp + fp + tn + fn)),
         }));
         const columnOrder = [ 'word', 'perc', 'tp', 'fp', 'tn', 'fn' ];
         const rows = stats.sort((a, b) =>  b.perc - a.perc)
