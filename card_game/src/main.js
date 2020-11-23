@@ -83,7 +83,9 @@ function start() {
     // Randomize deck.
     shuffle(deck);
 
-    $('#content-container').get(0).requestFullscreen();
+    const contentContainer = $('#content-container').get(0);
+
+    contentContainer.requestFullscreen && contentContainer.requestFullscreen();
     giveCards();
 }
 
