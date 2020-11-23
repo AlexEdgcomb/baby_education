@@ -1,3 +1,6 @@
 .DS_STORE
 pronunciation/out.csv
 raw_recordings
+lib
+node_modules
+package-lock.json
