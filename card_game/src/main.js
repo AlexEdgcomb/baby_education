@@ -16,6 +16,7 @@ $rewardContainer.hide();
 function loadStats() {
     const defaultResult = { truePositive: 0, falsePositive: 0, trueNegative: 0, falseNegative: 0 };
     const results = JSON.parse(localStorage.getItem('results'));
+    let tableHTML = '';
 
     if (results) {
         const matrix = results.reduce((accumulator, { cards, correct }) => {
@@ -39,16 +40,29 @@ function loadStats() {
             return accumulator;
         }, {});
 
+        // TODO: New column: % correct
+        // TODO: Sort rows by % correct
+
+        tableHTML = `<tr>
+    <th>Card</th>
+    <th>True positive</th>
+    <th>False positive</th>
+    <th>True negative</th>
+    <th>False negative</th>
+</tr>`;
+
         for (const [word, { truePositive, falsePositive, trueNegative, falseNegative }] of Object.entries(matrix)) {
-            $table.append(`<tr>
+            tableHTML += `<tr>
     <td>${word}</td>
     <td>${truePositive}</td>
     <td>${falsePositive}</td>
     <td>${trueNegative}</td>
     <td>${falseNegative}</td>
-</tr>`);
+</tr>`;
         }
     }
+
+    $table.html(tableHTML);
 }
 
 loadStats();
