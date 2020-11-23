@@ -39,9 +39,13 @@ function loadStats() {
 
             return accumulator;
         }, {});
-
-        // TODO: New column: % correct
-        // TODO: Sort rows by % correct
+        const stats = Object.entries(matrix).map(([word, { tp, fp, tn, fn }]) => ({
+            word, tp, fp, tn, fn, perc: 100 * (tp + tn) / (tp + fp + tn + fn),
+        }));
+        const columnOrder = [ 'word', 'perc', 'tp', 'fp', 'tn', 'fn' ];
+        const rows = stats.sort((a, b) =>  b.perc - a.perc)
+                          .map(stat => columnOrder.map(col => `<td>${stat[col]}</td>`).join(''))
+                          .join('</tr><tr>');
 
         tableHTML = `<tr>
     <th>Card</th>
@@ -50,18 +54,8 @@ function loadStats() {
     <th>False positive</th>
     <th>True negative</th>
     <th>False negative</th>
-</tr>`;
-
-        for (const [word, { tp, fp, tn, fn }] of Object.entries(matrix)) {
-            tableHTML += `<tr>
-    <td>${word}</td>
-    <td>${100 * (tp + tn) / (tp + fp + tn + fn)}%</td>
-    <td>${tp}</td>
-    <td>${fp}</td>
-    <td>${tn}</td>
-    <td>${fn}</td>
-</tr>`;
-        }
+</tr>
+<tr>${rows}</tr>`;
     }
 
     $table.html(tableHTML);
