@@ -89,6 +89,15 @@ function start() {
     giveCards();
 }
 
+function audioLoop() {
+    audio.play();
+    new Promise(resolve => audioResolve = resolve).then(() => {
+        initialTimer = setTimeout(() => {
+            audioLoop();
+        }, 3000);
+    });
+}
+
 // Generate cards and prompt.
 const deck = [
     {
@@ -126,6 +135,7 @@ const deck = [
 ];
 let question = null;
 let previousCorrect = true;
+let initialTimer;
 function giveCards() {
     $cardsContainer.show();
     $rewardContainer.hide();
@@ -159,13 +169,17 @@ function giveCards() {
         $cards.eq(index).find('img').attr('src', `content/${src}`);
     });
     $audio.attr('src', `content/select_${question.find(({ correct }) => correct).word}.m4a`);
-    audio.play();
+    audioLoop();
 }
 
 // Handle card selection.
 function selected(cardIndex) {
     $cards.prop('disabled', true);
     $cards.eq(cardIndex).addClass('selected');
+
+    audio.pause();
+    clearTimeout(initialTimer);
+    audioResolve = null;
 
     previousCorrect = question[cardIndex].correct;
 
@@ -184,7 +198,6 @@ function selected(cardIndex) {
 
         $audio.attr('src', `content/you_selected_${word}.m4a`);
         audio.play();
-
         new Promise(resolve => audioResolve = resolve).then(() => setTimeout(giveCards, 2000));
     }
 
