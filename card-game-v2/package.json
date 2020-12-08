@@ -1,5 +1,5 @@
 {
-    "name": "my-project",
+    "name": "card-game-v2",
     "version": "1.0.0",
     "scripts": {
         "build": "babel src -d lib"
